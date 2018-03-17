@@ -16,6 +16,12 @@ func main() {
 	fmt.Println(targetText, mutationRate, population)
 }
 
-func fitness(s string) float64 {
-	return 0
+func fitness(s, target string) float64 {
+	match := 0
+	for i := range target {
+		if target[i] == s[i] {
+			match++
+		}
+	}
+	return float64(match) / float64(len(target))
 }
