@@ -1,11 +1,23 @@
 package main
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
+
+func TestMe(t *testing.T) {
+	b := []byte("Hallo Ich bins !")
+	for _, v := range b {
+		v = 255
+		fmt.Println(v)
+	}
+	t.Error("--")
+}
 
 func Test_fitness(t *testing.T) {
 	type args struct {
-		s      string
-		target string
+		s      []byte
+		target []byte
 	}
 	tests := []struct {
 		name string
@@ -14,17 +26,17 @@ func Test_fitness(t *testing.T) {
 	}{
 		{
 			"match all",
-			args{"test", "test"},
+			args{[]byte("test"), []byte("test")},
 			1,
 		},
 		{
 			"no match",
-			args{"test", "aaaa"},
+			args{[]byte("test"), []byte("aaaa")},
 			0,
 		},
 		{
 			"half match",
-			args{"test", "teaa"},
+			args{[]byte("test"), []byte("teaa")},
 			0.5,
 		},
 	}
