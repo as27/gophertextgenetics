@@ -1,16 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"testing"
 )
 
 func TestMe(t *testing.T) {
-	b := []byte("Hallo Ich bins !")
-	for _, v := range b {
-		v = 255
-		fmt.Println(v)
-	}
+	main()
 	t.Error("--")
 }
 
