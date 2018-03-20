@@ -1,8 +1,8 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
-	"time"
 )
 
 type DNS struct {
@@ -16,7 +16,6 @@ func NewDNS(b []byte) *DNS {
 }
 
 func NewRandomDNS(length int) *DNS {
-	rand.Seed(time.Now().UnixNano())
 	var b []byte
 	for i := 0; i < length; i++ {
 		b = append(b, byte(rand.Intn(60)+65))
@@ -25,7 +24,6 @@ func NewRandomDNS(length int) *DNS {
 }
 
 func (d *DNS) Mutate(mutationRate float64) {
-	rand.Seed(time.Now().UnixNano())
 	for i, _ := range d.content {
 		if rand.Float64() <= mutationRate {
 			d.content[i] = byte(rand.Intn(60) + 65)
@@ -34,12 +32,23 @@ func (d *DNS) Mutate(mutationRate float64) {
 }
 
 func (d *DNS) Reproduce(father *DNS) *DNS {
-	rand.Seed(time.Now().UnixNano())
-	childDNS := d.content
+	childDNS := make([]byte, len(d.content))
 	for i, _ := range childDNS {
-		if rand.Float32() <= 0.5 {
+		/*if rand.Float64() <= 0.2 {
 			childDNS[i] = father.content[i]
+		}*/
+		if i%2 == 0 {
+			childDNS[i] = father.content[i]
+		} else {
+			childDNS[i] = d.content[i]
 		}
 	}
+	/*fmt.Println("mum", d)
+	fmt.Println("dad", father)
+	fmt.Println("chi", string(childDNS))*/
 	return NewDNS(childDNS)
+}
+
+func (d *DNS) String() string {
+	return fmt.Sprintf("%s", string(d.content))
 }

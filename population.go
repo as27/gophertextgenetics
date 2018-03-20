@@ -13,54 +13,54 @@ type Population struct {
 }
 
 func CreateNewPopulation(popSize, dnsLength int) *Population {
-	var p Population
+	dnss := make([]*DNS, popSize)
 	for i := 0; i < popSize; i++ {
-		p.dnss = append(p.dnss, NewRandomDNS(dnsLength))
+		dnss[i] = NewRandomDNS(dnsLength)
 	}
-	return &p
+	return &Population{
+		dnss: dnss,
+	}
 }
 
 func (p *Population) NextGeneration(mutationRate float64) *Population {
-	ng := Population{
-		Fitness: p.Fitness,
-	}
+	ng := Population{}
+	ng.Fitness = p.Fitness
+	dnss := make([]*DNS, p.Size())
 	for i := 0; i < p.Size(); i++ {
 		dnsMum := p.PickDNS()
-		dnsDad := p.PickDad(dnsMum)
+		dnsDad := p.PickDNS()
 		child := dnsMum.Reproduce(dnsDad)
 		child.Mutate(mutationRate)
-		ng.dnss = append(ng.dnss, child)
+		/*if child.String() == dnsMum.String() {
+			child = NewRandomDNS(len(child.content))
+		}*/
+		//fmt.Println(child)
+		dnss[i] = child
 	}
-	ng.Sort()
+	ng.dnss = dnss
 	return &ng
-}
-
-func (p *Population) PickDad(mum *DNS) *DNS {
-	dad := p.PickDNS()
-	if dad == mum {
-		return p.PickDad(mum)
-	}
-	return dad
 }
 
 func (p *Population) PickDNS() *DNS {
 	if p.fitnessSum == 0 {
+		var fitnessSum float64
 		for _, d := range p.dnss {
-			p.fitnessSum = p.fitnessSum + p.Fitness(d)
+			fitnessSum = fitnessSum + p.Fitness(d)
 		}
+		p.fitnessSum = fitnessSum
 	}
-	r := rand.Float64() * p.fitnessSum
 
+	r := rand.Float64() * p.fitnessSum
 	fitMin := float64(0)
 	fitMax := float64(0)
 	for _, d := range p.dnss {
 		fitMax = fitMin + p.Fitness(d)
-		fmt.Println(r, fitMin, fitMax)
 		if fitMin <= r && r <= fitMax {
 			return d
 		}
 		fitMin = fitMax
 	}
+	fmt.Println("----->", r, p.fitnessSum)
 	return p.dnss[0]
 }
 
@@ -74,4 +74,21 @@ func (p *Population) Sort() {
 	sort.Slice(p.dnss, func(i, j int) bool {
 		return p.Fitness(p.dnss[i]) > p.Fitness(p.dnss[j])
 	})
+}
+
+func (p *Population) PrintN(n int) {
+	for i, dns := range p.dnss {
+		if i == n {
+			break
+		}
+		if dns == nil {
+			continue
+		}
+		fmt.Println(
+			dns,
+			p.Fitness(dns),
+			dns.content)
+	}
+
+	fmt.Println("----------------------")
 }

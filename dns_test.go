@@ -56,3 +56,29 @@ func TestNewRandomDNS(t *testing.T) {
 		})
 	}
 }
+
+func TestDNS_Reproduce(t *testing.T) {
+	type args struct {
+		father *DNS
+	}
+	tests := []struct {
+		name string
+		d    *DNS
+		args args
+		want *DNS
+	}{
+		{
+			"test",
+			NewDNS([]byte{100, 100, 100, 100, 100}),
+			args{NewDNS([]byte{200, 200, 200, 200, 200})},
+			nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.d.Reproduce(tt.args.father); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("DNS.Reproduce() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
