@@ -7,6 +7,7 @@ import (
 
 type DNS struct {
 	content []byte
+	Fitness int
 }
 
 func NewDNS(b []byte) *DNS {
@@ -18,7 +19,7 @@ func NewDNS(b []byte) *DNS {
 func NewRandomDNS(length int) *DNS {
 	var b []byte
 	for i := 0; i < length; i++ {
-		b = append(b, byte(rand.Intn(60)+65))
+		b = append(b, randByte())
 	}
 	return NewDNS(b)
 }
@@ -26,9 +27,14 @@ func NewRandomDNS(length int) *DNS {
 func (d *DNS) Mutate(mutationRate float64) {
 	for i, _ := range d.content {
 		if rand.Float64() <= mutationRate {
-			d.content[i] = byte(rand.Intn(60) + 65)
+			d.content[i] = randByte()
 		}
 	}
+}
+
+func randByte() byte {
+	//return byte(rand.Intn(65) + 60)
+	return byte(rand.Intn(255))
 }
 
 func (d *DNS) Reproduce(father *DNS) *DNS {

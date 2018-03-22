@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"math/rand"
 	"os"
@@ -10,13 +11,23 @@ import (
 func init() {
 	rand.Seed(time.Now().UnixNano())
 }
+
+var (
+	flagMutationRate   = flag.Float64("mr", float64(0.01), "mutation rate")
+	flagPopulation     = flag.Int("p", 800, "population")
+	flagTargetText     = flag.String("t", "This is the secret text", "target text")
+	flagMaxGenerations = flag.Int("max", 5000, "max generations")
+)
+
 func main() {
-	targetText := "SagMirWoDieBlumenSind"
-	mutationRate := float64(0.2)
-	population := 600
+	flag.Parse()
+	start := time.Now()
+	targetText := *flagTargetText
+	mutationRate := *flagMutationRate
+	population := *flagPopulation
 	fmt.Println(targetText, mutationRate, population)
 	pop := CreateNewPopulation(population, len(targetText))
-	pop.Fitness = func(d *DNS) float64 {
+	pop.Fitness = func(d *DNS) int {
 		match := 0
 		for i, b := range []byte(targetText) {
 			if b == d.content[i] {
@@ -24,22 +35,29 @@ func main() {
 			}
 		}
 
-		return float64(match)
+		return match * match * match
 	}
+	pop.CalcFitness()
 	pop.Sort()
 
 	counter := 0
 	for {
-		//pop.PrintN(10)
+		if counter%20 == 0 {
+			pop.PrintN(5)
+		}
+
 		//wait()
 		bestMatch := string(pop.dnss[0].content)
 		//fmt.Println(pop.Fitness(pop.dnss[0]), bestMatch, pop.dnss[0].content, pop.dnss[1].content, pop.dnss[2].content)
 		if bestMatch == targetText {
+			fmt.Println(targetText, mutationRate, population)
 			fmt.Println("Counter", counter, bestMatch)
+			end := time.Now()
+			fmt.Println("Time:", end.Sub(start))
 			break
 		}
-		if counter == 200 {
-			pop.PrintN(50)
+		if counter == *flagMaxGenerations {
+			pop.PrintN(10)
 			break
 		}
 
@@ -47,6 +65,7 @@ func main() {
 		nextGen := pop.NextGeneration(mutationRate)
 
 		pop = nextGen
+		pop.CalcFitness()
 		pop.Sort()
 	}
 }

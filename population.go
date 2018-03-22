@@ -8,8 +8,8 @@ import (
 
 type Population struct {
 	dnss       []*DNS
-	fitnessSum float64
-	Fitness    func(*DNS) float64
+	fitnessSum int
+	Fitness    func(*DNS) int
 }
 
 func CreateNewPopulation(popSize, dnsLength int) *Population {
@@ -19,6 +19,12 @@ func CreateNewPopulation(popSize, dnsLength int) *Population {
 	}
 	return &Population{
 		dnss: dnss,
+	}
+}
+
+func (p *Population) CalcFitness() {
+	for _, d := range p.dnss {
+		d.Fitness = p.Fitness(d)
 	}
 }
 
@@ -43,18 +49,18 @@ func (p *Population) NextGeneration(mutationRate float64) *Population {
 
 func (p *Population) PickDNS() *DNS {
 	if p.fitnessSum == 0 {
-		var fitnessSum float64
+		var fitnessSum int
 		for _, d := range p.dnss {
-			fitnessSum = fitnessSum + p.Fitness(d)
+			fitnessSum = fitnessSum + d.Fitness
 		}
 		p.fitnessSum = fitnessSum
 	}
 
-	r := rand.Float64() * p.fitnessSum
-	fitMin := float64(0)
-	fitMax := float64(0)
+	r := int(rand.Float64() * float64(p.fitnessSum))
+	fitMin := 0
+	fitMax := 0
 	for _, d := range p.dnss {
-		fitMax = fitMin + p.Fitness(d)
+		fitMax = fitMin + d.Fitness
 		if fitMin <= r && r <= fitMax {
 			return d
 		}
@@ -72,7 +78,7 @@ func (p *Population) Size() int {
 // fitness is sorted first
 func (p *Population) Sort() {
 	sort.Slice(p.dnss, func(i, j int) bool {
-		return p.Fitness(p.dnss[i]) > p.Fitness(p.dnss[j])
+		return p.dnss[i].Fitness > p.dnss[j].Fitness
 	})
 }
 
@@ -86,7 +92,7 @@ func (p *Population) PrintN(n int) {
 		}
 		fmt.Println(
 			dns,
-			p.Fitness(dns),
+			dns.Fitness,
 			dns.content)
 	}
 
