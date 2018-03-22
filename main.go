@@ -42,7 +42,7 @@ func main() {
 
 	counter := 0
 	for {
-		if counter%20 == 0 {
+		if counter%50 == 0 {
 			pop.PrintN(5)
 		}
 

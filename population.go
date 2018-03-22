@@ -24,7 +24,10 @@ func CreateNewPopulation(popSize, dnsLength int) *Population {
 
 func (p *Population) CalcFitness() {
 	for _, d := range p.dnss {
-		d.Fitness = p.Fitness(d)
+		go func(d *DNS) {
+			d.Fitness = p.Fitness(d)
+		}(d)
+
 	}
 }
 
@@ -92,8 +95,7 @@ func (p *Population) PrintN(n int) {
 		}
 		fmt.Println(
 			dns,
-			dns.Fitness,
-			dns.content)
+			dns.Fitness)
 	}
 
 	fmt.Println("----------------------")
