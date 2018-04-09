@@ -35,15 +35,15 @@ func main() {
 			}
 		}
 
-		return match * match * match
+		return match * match
 	}
 	pop.CalcFitness()
 	pop.Sort()
 
 	counter := 0
 	for {
-		if counter%50 == 0 {
-			pop.PrintN(5)
+		if counter%20 == 0 {
+			go pop.PrintN(5)
 		}
 
 		//wait()
